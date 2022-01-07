@@ -120,7 +120,7 @@ int main(){
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     // create shader program
-    ShaderProgram shaderProgram("shaders/shader.vs", "shaders/shader.fs");
+    ShaderProgram shaderProgram("../shaders/shader.vs", "../shaders/shader.fs");
 
     // Tune vertexAttribPointer
     glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,3*sizeof(float),(void*)0);

@@ -1,10 +1,12 @@
 #include <vector>
 #include <memory>
 #include <math.h>
+#include <vect3d.hpp>
 
 struct Surface {
-    Surface(double a, double b, double c, double d) : a(a), b(b), c(c), d(d) {};
-    double a, b, c, d; // plane equation a*x + b*y + c*z + d = 0, or (r,N) + d = 0 where N = (a, b, c) - normal vector
+    Surface(double a, double b, double c, double d) : normal_vect(a, b, c), d(d) {};
+    vect3d_d normal_vect;
+    double d; // plane equation a*x + b*y + c*z + d = 0, or (r,N) + d = 0 where N = (a, b, c) - normal vector
 };
 
 struct PhysVertex {

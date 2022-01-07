@@ -96,7 +96,8 @@ void Structure::stepForward(double dt){
     for (auto& vert : vertices){
         bool shouldMove = (vert.surface == nullptr);
         if (vert.surface){
-            double result = vert.surface->a*vert.fx + vert.surface->b*vert.fy + vert.surface->c*vert.fz;
+            vect3d_d vertex_vel(vert.vx, vert.vy, vert.vz);
+            double result = vert.surface->normal_vect.scalar_prod(vertex_vel);
             shouldMove = result > 0;
         }
         vert.x += vert.vx*dt;

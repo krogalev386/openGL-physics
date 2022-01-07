@@ -10,11 +10,11 @@ struct Surface {
 };
 
 struct PhysVertex {
-    PhysVertex(double mass, double x, double y, double z) : mass(mass), x(x), y(y), z(z) {};
+    PhysVertex(double mass, double x, double y, double z) : mass(mass), pos(x, y, z) {};
     double mass;
-    double x, y, z;
-    double vx, vy, vz;
-    double fx, fy, fz;
+    vect3d_d pos;
+    vect3d_d vel;
+    vect3d_d force;
     std::shared_ptr<Surface> surface;
 };
 

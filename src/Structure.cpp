@@ -5,20 +5,14 @@
 
 #include <Structure.hpp>
 
-inline double norm3d(double x, double y, double z){
-    return sqrt(x*x + y*y + z*z);
-}
-
 Bound::Bound(double stiffness, PhysVertex& vert1, PhysVertex& vert2) : k(stiffness), vert1(vert1), vert2(vert2) {
-    length = norm3d((vert1.x - vert2.x),(vert1.y - vert2.y),(vert1.z - vert2.z));
+    length = (vert1.pos - vert2.pos).norm3d();
 }
 
 double Bound::forceMagnitude(){
-    double current_length = norm3d((vert1.x - vert2.x),(vert1.y - vert2.y),(vert1.z - vert2.z));
+    double current_length = (vert1.pos - vert2.pos).norm3d();
 
-    double velocity_projection = (vert1.vx - vert2.vx)*(vert1.x - vert2.x)
-                               + (vert1.vy - vert2.vy)*(vert1.y - vert2.y)
-                               + (vert1.vz - vert2.vz)*(vert1.z - vert2.z);
+    double velocity_projection = (vert1.pos - vert2.pos).scalar_prod(vert1.vel - vert2.vel);
 
     return -k*(length - current_length) + 10.0*velocity_projection;
 
@@ -64,9 +58,9 @@ Structure::Structure() {
 
 void Structure::evalForces(double gravity){
     for (auto& vertex : vertices){
-        vertex.fx = 0;
-        vertex.fy = 0;
-        vertex.fz = gravity*vertex.mass;
+        vertex.force[0] = 0;
+        vertex.force[1] = 0;
+        vertex.force[2] = gravity*vertex.mass;
         //std::cout << "CHECK:" << &vertex << " " << vertex.mass << " " << vertex.fx << " " << vertex.fy << " " << vertex.fz << std::endl;
     }
     for (auto& bound : bounds){
@@ -74,21 +68,12 @@ void Structure::evalForces(double gravity){
         PhysVertex& vert2 = bound.vert2;
 
         double x, y, z; // direction unit vector from second vertex to first one
-        x = (vert2.x - vert1.x);
-        y = (vert2.y - vert1.y);
-        z = (vert2.z - vert1.z);
-
-        double norm = norm3d(x,y,z);
-        x = x/norm; y = y/norm; z = z/norm;
+        vect3d_d direction = vert2.pos - vert1.pos;
+        direction = direction/direction.norm3d();
 
         double forceMagn = bound.forceMagnitude();
-        vert1.fx += x*forceMagn;
-        vert1.fy += y*forceMagn;
-        vert1.fz += z*forceMagn;
-        vert2.fx -= x*forceMagn;
-        vert2.fy -= y*forceMagn;
-        vert2.fz -= z*forceMagn;
-        //std::cout << vert2.mass << " " << &vert2 << " " << vert2.fx << " " << vert2.fy << " " << vert2.fz << std::endl;
+        vert1.force += direction*forceMagn;
+        vert2.force -= direction*forceMagn;
     }
 };
 
@@ -96,30 +81,23 @@ void Structure::stepForward(double dt){
     for (auto& vert : vertices){
         bool shouldMove = (vert.surface == nullptr);
         if (vert.surface){
-            vect3d_d vertex_vel(vert.vx, vert.vy, vert.vz);
-            double result = vert.surface->normal_vect.scalar_prod(vertex_vel);
+            double result = vert.surface->normal_vect.scalar_prod(vert.vel);
             shouldMove = result > 0;
         }
-        vert.x += vert.vx*dt;
-        vert.y += vert.vy*dt;
-        vert.z += vert.vz*dt;
 
-        vert.vx += vert.fx*dt/vert.mass;
-        vert.vy += vert.fy*dt/vert.mass;
-        vert.vz += vert.fz*dt/vert.mass;
+        vert.pos += vert.vel*dt;
+        vert.vel += vert.force*(dt/vert.mass);
+
         if (!shouldMove){
-            vert.vx = -vert.vx;
-            vert.vy = -vert.vy;
-            vert.vz = -vert.vz;
+            vert.vel = -vert.vel;
         }
-        //std::cout << "STEPFORWARD:" << vert.x << " " << vert.y << " " << vert.z << std::endl;
     }
 };
 
 void Structure::getPositions(float* pos_array){
     for (int i = 0; i < vertices.size(); i++){
-        pos_array[3*i] = vertices[i].x;
-        pos_array[3*i+1] = vertices[i].y;
-        pos_array[3*i+2] = vertices[i].z;
+        pos_array[3*i] = vertices[i].pos[0];
+        pos_array[3*i+1] = vertices[i].pos[1];
+        pos_array[3*i+2] = vertices[i].pos[2];
     }
 }

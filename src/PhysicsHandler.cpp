@@ -32,10 +32,8 @@ void PhysicsHandler::findContacts(){
     for (auto& surface : surfaces)
         for (auto& structure : structures)
             for (auto& vertex : structure->getVertices()){
-                vect3d_d vertex_pos(vertex.x, vertex.y, vertex.z);
-                vect3d_d vertex_vel(vertex.vx, vertex.vy, vertex.vz);
-                double height = surface->normal_vect.scalar_prod(vertex_pos) + surface->d;
-                double orientation = surface->normal_vect.scalar_prod(vertex_vel);
+                double height = surface->normal_vect.scalar_prod(vertex.pos) + surface->d;
+                double orientation = surface->normal_vect.scalar_prod(vertex.vel);
                 //std::cout << surface->a << " " << surface->b << " " << surface->c << " " << surface->d << std::endl;
                 //std::cout << height << std::endl;
                 if ((height < 0) and (orientation < 0)) {

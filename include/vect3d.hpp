@@ -44,6 +44,12 @@ public:
         return result;
     }
 
+    vect3d operator/(const T& coeff) const {
+        vect3d result;
+        result.array = array / coeff;
+        return result;
+    }
+
     void operator+=(const vect3d& other) {
         *this = *this + other;
     }
@@ -51,6 +57,13 @@ public:
     void operator-=(const vect3d& other) {
         *this = *this - other;
     }
+
+    vect3d operator-() {
+        vect3d result;
+        result.array = -array;
+        return result;
+    }
+
 
     T scalar_prod(const vect3d& other) const {
         T result = array[0]*other.array[0]

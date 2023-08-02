@@ -25,13 +25,20 @@ FetchContent_Declare(
 	GIT_REPOSITORY https://github.com/g-truc/glm.git
 )
 FetchContent_MakeAvailable(GLM)
-add_executable(example main.cpp)
 
+set(CMAKE_CXX_FLAGS "-fsanitize=address")
+
+add_subdirectory(${PROJECT_SOURCE_DIR}/gl_buffers)
 add_subdirectory(${PROJECT_SOURCE_DIR}/src)
 
+add_executable(example main.cpp)
+
 target_link_libraries(example 
-	glad
-	OpenGL::GL
-	glfw
-	glm
+	PUBLIC
+		program_base
+		gl_buffers
+		glad
+		OpenGL::GL
+		glfw
+		glm
 )

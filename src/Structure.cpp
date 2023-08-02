@@ -21,14 +21,14 @@ double Bound::forceMagnitude(){
 
 Structure::Structure() {
     // vertices initialization
-    vertices.emplace_back(PhysVertex(1,-0.5,-0.5,-0.5));
-    vertices.emplace_back(PhysVertex(1, 0.5,-0.5,-0.5));
-    vertices.emplace_back(PhysVertex(1, 0.5,-0.5, 0.5));
-    vertices.emplace_back(PhysVertex(1,-0.5,-0.5, 0.5));
-    vertices.emplace_back(PhysVertex(1,-0.5, 0.5,-0.5));
-    vertices.emplace_back(PhysVertex(1, 0.5, 0.5,-0.5));
-    vertices.emplace_back(PhysVertex(1, 0.5, 0.5, 0.5));
-    vertices.emplace_back(PhysVertex(1,-0.5, 0.5, 0.5));
+    vertices.emplace_back(PhysVertex(0.1,-0.5,-0.5,-0.5));
+    vertices.emplace_back(PhysVertex(0.1, 0.5,-0.5,-0.5));
+    vertices.emplace_back(PhysVertex(0.1, 0.5,-0.5, 0.5));
+    vertices.emplace_back(PhysVertex(0.1,-0.5,-0.5, 0.5));
+    vertices.emplace_back(PhysVertex(0.1,-0.5, 0.5,-0.5));
+    vertices.emplace_back(PhysVertex(0.1, 0.5, 0.5,-0.5));
+    vertices.emplace_back(PhysVertex(0.1, 0.5, 0.5, 0.5));
+    vertices.emplace_back(PhysVertex(0.1,-0.5, 0.5, 0.5));
 
     // bounds initializtion
     bounds.emplace_back(Bound(500, vertices[0], vertices[1]));

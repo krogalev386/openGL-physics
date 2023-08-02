@@ -16,6 +16,8 @@ public:
     // cunstructor
     ShaderProgram(const char* vertexShaderPath, 
                   const char* fragmanetShaderPath);
+    // destructor
+    ~ShaderProgram();
     // use/activate shader
     void use();
     // utility uniform functions

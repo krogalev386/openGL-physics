@@ -7,6 +7,10 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <VAO.hpp>
+#include <VBO.hpp>
+#include <EBO.hpp>
+
 #include <ShaderProgram.hpp>
 #include <PhysicsHandler.hpp>
 
@@ -61,7 +65,7 @@ int main(){
     ptr_vec<Structure> structures;
     ptr_vec<Surface> surfaces;
     structures.emplace_back(std::make_shared<Structure>(Structure()));
-    surfaces.emplace_back(std::make_shared<Surface>(Surface(0,0,1.0,3.0)));
+    surfaces.emplace_back(std::make_shared<Surface>(Surface(0.1,-0.1,1.0,3.0)));
 
     physicsHandler.setEnviroment(structures, surfaces, -9.8);
 
@@ -100,34 +104,29 @@ int main(){
         2,5,6   // 12 triangle
     };
 
+    // Vertex array object initialization
+    VAO VAO1;
+    VAO1.bind();
+
     // Initialize vertex buffer object
-    uint VBO;
-    glGenBuffers(1, &VBO);
+    VBO VBO1(vertices, sizeof(vertices));
+    VBO1.bind();
 
     // Element buffer initialization
-    uint EBO;
-    glGenBuffers(1, &EBO);
+    EBO EBO1(indices, sizeof(indices));
+    EBO1.bind();
 
-    // Vertex array object initialization
-    uint VAO;
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
+    // Link VBO with VAO
+    VAO1.linkVBO(VBO1, 0);
 
-    glBindBuffer(GL_ARRAY_BUFFER, VBO); // bind buffer to buffer type
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW); // load data to buffer
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-    // create shader program
-    ShaderProgram shaderProgram("../shaders/shader.vs", "../shaders/shader.fs");
-
-    // Tune vertexAttribPointer
-    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,3*sizeof(float),(void*)0);
-    glEnableVertexAttribArray(0);    
+    VAO1.unbind();
+    VBO1.unbind();
 
     // Wireframe mode;
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+    // create shader program
+    ShaderProgram shaderProgram("../shaders/shader.vs", "../shaders/shader.fs");
 
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::rotate(model, glm::radians(-70.0f), glm::vec3(1.0f, 0.0f, 0.0f)); 
@@ -156,7 +155,8 @@ int main(){
 
         shaderProgram.use();
 
-        glBindVertexArray(VAO);
+        VAO1.bind();
+        VBO1.bind();
 
         double dt = glfwGetTime() - last_time;
         last_time = glfwGetTime();
@@ -166,13 +166,20 @@ int main(){
         structures[0]->getPositions(vertices);
         glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
         glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-        
-        glBindVertexArray(0);
+
+        VBO1.unbind();
+        VAO1.unbind();
 
         glfwSwapBuffers(window);
         glfwPollEvents();    
     }
 
+    EBO1.unbind();
+    //VBO1.unbind();
+    //VAO1.unbind();
+
+    VAO1.deleteVAO();
+    VBO1.deleteVBO();
     // Close session
     glfwTerminate();    
     return 0;

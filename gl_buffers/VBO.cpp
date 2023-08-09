@@ -5,7 +5,12 @@ VBO::VBO(GLfloat* vertices, GLsizeiptr size)
 {
     glGenBuffers(1, &ID);
     this->bind();
-    glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STREAM_DRAW); // load data to buffer
+    this->update(vertices, size); // load data to buffer
+}
+
+void VBO::update(GLfloat* vertices, GLsizeiptr size)
+{
+    glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STREAM_DRAW);
 }
 
 void VBO::bind()

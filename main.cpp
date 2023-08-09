@@ -1,6 +1,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <vector>
 #include <math.h>
 
 #include <glm/glm.hpp>
@@ -13,6 +14,8 @@
 
 #include <ShaderProgram.hpp>
 #include <PhysicsHandler.hpp>
+#include <Structure.hpp>
+#include <Cuboid.hpp>
 
 // Escape key handler
 void processInput(GLFWwindow *window)
@@ -64,56 +67,25 @@ int main(){
 
     ptr_vec<Structure> structures;
     ptr_vec<Surface> surfaces;
-    structures.emplace_back(std::make_shared<Structure>(Structure()));
-    surfaces.emplace_back(std::make_shared<Surface>(Surface(0.1,-0.1,1.0,3.0)));
+    structures.emplace_back(std::make_shared<Structure>(Cuboid(vect3d_d(0,0,0), 0.2,1000, 1, 1, 1, 1, 1, 1)));
+    surfaces.emplace_back(std::make_shared<Surface>(Surface(0.1,0.1,1.0,3.0)));
 
     physicsHandler.setEnviroment(structures, surfaces, -9.8);
 
-    float vertices[8*3];
-
-    structures[0]->getPositions(vertices);
-
+    std::vector<float> vertices = structures[0]->getPositions();
+    std::vector<uint>  vertex_indices = structures[0]->getIndices();
 /////////////////////////////////////////////////////////////////////////////
-
-    // Set vertices
-    //float vertices[] = {
-    //    -0.5f, -0.5f, -0.5f,
-    //    -0.5f, -0.5f,  0.5f,
-    //    -0.5f,  0.5f,  0.5f,
-    //    -0.5f,  0.5f, -0.5f,
-    //    
-    //     0.5f, -0.5f, -0.5f,
-    //     0.5f, -0.5f,  0.5f,
-    //     0.5f,  0.5f,  0.5f,
-    //     0.5f,  0.5f, -0.5f,
-    //
-    //};
-
-    uint indices[] = {
-        0,1,2,  // 1  triangle
-        1,2,3,  // 2  triangle
-        4,5,6,  // 3  triangle
-        5,6,7,  // 4  triangle
-        0,1,4,  // 5  triangle
-        1,4,5,  // 6  triangle
-        2,3,6,  // 7  triangle
-        3,6,7,  // 8  triangle
-        0,3,4,  // 9  triangle
-        3,4,7,  // 10 triangle
-        1,2,5,  // 11 triangle
-        2,5,6   // 12 triangle
-    };
 
     // Vertex array object initialization
     VAO VAO1;
     VAO1.bind();
 
     // Initialize vertex buffer object
-    VBO VBO1(vertices, sizeof(vertices));
+    VBO VBO1(vertices.data(), vertices.size()*sizeof(float));
     VBO1.bind();
 
     // Element buffer initialization
-    EBO EBO1(indices, sizeof(indices));
+    EBO EBO1(vertex_indices.data(), vertex_indices.size()*sizeof(uint));
     EBO1.bind();
 
     // Link VBO with VAO
@@ -163,9 +135,11 @@ int main(){
         for (int i = 0; i < 100; i++){
             physicsHandler.makeTimeStep(dt/100);
         }
-        structures[0]->getPositions(vertices);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
-        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+        vertices = structures[0]->getPositions();
+        VBO1.update(vertices.data(), vertices.size()*sizeof(float));
+        //glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_LINES, structures[0]->getIndices().size(), GL_UNSIGNED_INT, 0);
 
         VBO1.unbind();
         VAO1.unbind();

@@ -7,6 +7,7 @@ class VBO
 public:
     VBO(GLfloat* vertices, GLsizeiptr size);
 
+    void update(GLfloat* vertices, GLsizeiptr size);
     void bind();
     void unbind();
     void deleteVBO();

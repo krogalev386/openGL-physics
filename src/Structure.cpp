@@ -5,58 +5,31 @@
 
 #include <Structure.hpp>
 
-Bound::Bound(double stiffness, PhysVertex& vert1, PhysVertex& vert2) : k(stiffness), vert1(vert1), vert2(vert2) {
+Bound::Bound(double stiffness, PhysVertex& vert1, PhysVertex& vert2) : k(stiffness), vert1(vert1), vert2(vert2)
+{
     length = (vert1.pos - vert2.pos).norm3d();
 }
 
-double Bound::forceMagnitude(){
+double Bound::forceMagnitude()
+{
     double current_length = (vert1.pos - vert2.pos).norm3d();
 
     double velocity_projection = (vert1.pos - vert2.pos).scalar_prod(vert1.vel - vert2.vel);
 
-    return -k*(length - current_length) + 10.0*velocity_projection;
-
+    return -k*(length - current_length) + 40.0*velocity_projection;
 }
 
 
-Structure::Structure() {
-    // vertices initialization
-    vertices.emplace_back(PhysVertex(0.1,-0.5,-0.5,-0.5));
-    vertices.emplace_back(PhysVertex(0.1, 0.5,-0.5,-0.5));
-    vertices.emplace_back(PhysVertex(0.1, 0.5,-0.5, 0.5));
-    vertices.emplace_back(PhysVertex(0.1,-0.5,-0.5, 0.5));
-    vertices.emplace_back(PhysVertex(0.1,-0.5, 0.5,-0.5));
-    vertices.emplace_back(PhysVertex(0.1, 0.5, 0.5,-0.5));
-    vertices.emplace_back(PhysVertex(0.1, 0.5, 0.5, 0.5));
-    vertices.emplace_back(PhysVertex(0.1,-0.5, 0.5, 0.5));
+Structure::Structure()
+{}
 
-    // bounds initializtion
-    bounds.emplace_back(Bound(500, vertices[0], vertices[1]));
-    bounds.emplace_back(Bound(500, vertices[0], vertices[3]));
-    bounds.emplace_back(Bound(500, vertices[0], vertices[4]));
-    bounds.emplace_back(Bound(500, vertices[0], vertices[6]));
+std::vector<uint> Structure::getIndices()
+{
+    return vertex_indices;
+}
 
-    bounds.emplace_back(Bound(500, vertices[1], vertices[2]));
-    bounds.emplace_back(Bound(500, vertices[1], vertices[5]));
-    bounds.emplace_back(Bound(500, vertices[1], vertices[7]));
-
-    bounds.emplace_back(Bound(500, vertices[2], vertices[3]));
-    bounds.emplace_back(Bound(500, vertices[2], vertices[6]));
-    bounds.emplace_back(Bound(500, vertices[2], vertices[4]));
-
-    bounds.emplace_back(Bound(500, vertices[3], vertices[7]));
-    bounds.emplace_back(Bound(500, vertices[3], vertices[5]));
-
-    bounds.emplace_back(Bound(500, vertices[4], vertices[7]));
-    bounds.emplace_back(Bound(500, vertices[4], vertices[5]));
-
-    bounds.emplace_back(Bound(500, vertices[5], vertices[6]));
-
-    bounds.emplace_back(Bound(500, vertices[6], vertices[7]));
-
-};
-
-void Structure::evalForces(double gravity){
+void Structure::evalForces(double gravity)
+{
     for (auto& vertex : vertices){
         vertex.force[0] = 0;
         vertex.force[1] = 0;
@@ -77,7 +50,8 @@ void Structure::evalForces(double gravity){
     }
 };
 
-void Structure::stepForward(double dt){
+void Structure::stepForward(double dt)
+{
     for (auto& vert : vertices){
         bool shouldMove = (vert.surface == nullptr);
         if (vert.surface){
@@ -94,10 +68,13 @@ void Structure::stepForward(double dt){
     }
 };
 
-void Structure::getPositions(float* pos_array){
+std::vector<float> Structure::getPositions()
+{
+    std::vector<float> pos_array(3*vertices.size());
     for (int i = 0; i < vertices.size(); i++){
         pos_array[3*i] = vertices[i].pos[0];
         pos_array[3*i+1] = vertices[i].pos[1];
         pos_array[3*i+2] = vertices[i].pos[2];
     }
+    return pos_array;
 }

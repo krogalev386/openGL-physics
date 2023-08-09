@@ -2,6 +2,7 @@ add_library(program_base
     ShaderProgram.cpp
     Structure.cpp
     PhysicsHandler.cpp
+    Cuboid.cpp
 )
 
 target_include_directories(program_base
